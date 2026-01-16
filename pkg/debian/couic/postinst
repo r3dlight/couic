@@ -1,0 +1,48 @@
+#!/bin/sh
+set -e
+
+COUIC_CONF="/etc/couic/couic.toml"
+COUIC_CONF_PERMS=640
+COUIC_HOME="/var/lib/couic/"
+COUIC_BIN="/usr/sbin/couic"
+COUIC_USER="couic"
+
+create_user() {
+    if id ${COUIC_USER} > /dev/null 2>&1; then return; fi
+    useradd --system --home-dir "${COUIC_HOME}" --create-home --user-group --shell /usr/sbin/nologin ${COUIC_USER}
+}
+
+set_permissions() {
+    # Ensure that the config file has the correct ownership
+    chown root:${COUIC_USER} ${COUIC_CONF}
+    chown root:${COUIC_USER} ${COUIC_BIN}
+    # Ensure that the config file has the correct permissions
+    chmod ${COUIC_CONF_PERMS} ${COUIC_CONF}
+}
+
+create_directories() {
+    for dir in \
+        /run/couic \
+        /var/log/couic \
+        /var/lib/couic/sets \
+        /var/lib/couic/sets/drop \
+        /var/lib/couic/sets/ignore \
+        /var/lib/couic/rbac \
+        /var/lib/couic/rbac/clients; do
+        if [ ! -d "$dir" ]; then
+            mkdir -p "$dir"
+            chown ${COUIC_USER}:${COUIC_USER} "$dir"
+            chmod 0755 "$dir"
+        fi
+    done
+}
+
+case "$1" in
+configure)
+    create_user
+    set_permissions
+    create_directories
+    ;;
+esac
+
+#DEBHELPER#

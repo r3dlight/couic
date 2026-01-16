@@ -1,0 +1,14 @@
+#==========================
+# Couic Configuration File
+#==========================
+
+ifaces = ["eth0"]
+working_dir = "/tmp"
+user = "root"
+group = "root"
+
+[logging]
+dir = "/tmp"
+
+[server]
+socket = "/tmp/couic.sock"

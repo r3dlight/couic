@@ -1,0 +1,1 @@
+Couic Report is a companion service for Couic, providing centralized reporting and notification capabilities for eBPF-based network filtering events.

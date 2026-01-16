@@ -1,0 +1,17 @@
+#!/bin/sh
+set -e
+
+COUIC_REPORT_DIRS="/etc/couic-report"
+
+case "$1" in
+purge)
+    # Remove data directory if it exist
+    for dir in ${COUIC_REPORT_DIRS}; do
+        if [ -d "${dir}" ]; then
+            rm -rf "${dir}"
+        fi
+    done
+    ;;
+esac
+
+#DEBHELPER#

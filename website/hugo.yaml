@@ -1,0 +1,79 @@
+baseURL: https://couic.net
+languageCode: en-us
+title: COUIC
+
+# import hextra as module
+module:
+  imports:
+    - path: github.com/imfing/hextra
+
+markup:
+  # allow raw html
+  goldmark:
+    renderer:
+      unsafe: true
+
+  # enable hextra syntax highlight
+  highlight:
+    noClasses: false
+
+menu:
+  main:
+    - name: Documentation
+      pageRef: /docs
+      weight: 1
+    - name: Search
+      weight: 2
+      params:
+        type: search
+    - name: Theme Toggle
+      weight: 3
+      params:
+        type: theme-toggle
+        label: true
+    - name: GitHub
+      weight: 4
+      url: "https://github.com/github.com/FCSC-FR/couic"
+      params:
+        icon: github
+
+params:
+  description: "Couic is an open-source XDP-based filtering solution for Layer 7 DDoS defense, controllable through REST API"
+  author: "FCSC-FR"
+  images:
+    - /images/couic-og.png
+  navbar:
+    displayTitle: true
+    displayLogo: true
+    logo:
+      path: images/black.svg
+      dark: images/white.svg
+      link: https://couic.net
+      width: 20
+      height: 20
+  theme:
+    # light | dark | system
+    #default: system
+    displayToggle: false
+  footer:
+    displayCopyright: true
+    displayPoweredBy: true
+
+  # editURL:
+  #   enable: true
+  #   base: "https://github.com/FCSC-FR/couic/website"
+  
+  externalLinkDecoration: true
+  # banner:
+  #   key: 'announcement-xxxx'
+  #   message: |
+  #     🎉 Welcome! [Hextra](https://github.com/hextra/hextra) is a static site generator that helps you build modern websites.
+
+sitemap:
+  changeFreq: 'weekly'
+  disable: false
+  filename: sitemap.xml
+  priority: 0.5
+
+canonifyURLs: true
+enableRobotsTXT: true

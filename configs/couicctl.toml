@@ -1,0 +1,17 @@
+#==========================
+# Couicctl Configuration File
+#==========================
+
+# mode: local or remote
+mode = "local"
+
+# Local server configuration
+socket = "/var/run/couic/couic.sock"
+# Auth token
+client_file = "/var/lib/couic/rbac/clients/couicctl.toml"
+
+# Remote server configuration
+#tls = false
+#host = "localhost"
+#port = 8080
+#token = "00000000-0000-0000-0000-000000000000"

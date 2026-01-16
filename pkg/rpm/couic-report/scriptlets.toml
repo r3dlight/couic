@@ -1,0 +1,48 @@
+post_install_script = '''
+#!/bin/sh
+set -e
+
+COUIC_REPORT_CONF="/etc/couic-report/config.toml"
+COUIC_REPORT_CONF_PERMS=640
+COUIC_REPORT_BIN="/usr/bin/couic-report"
+COUIC_REPORT_USER="couic-report"
+
+create_user() {
+    if id ${COUIC_REPORT_USER} > /dev/null 2>&1; then return; fi
+    useradd --system --no-create-home --user-group --shell /usr/sbin/nologin ${COUIC_REPORT_USER}
+}
+
+set_permissions() {
+    # Ensure that the config file has the correct ownership
+    chown root:${COUIC_REPORT_USER} ${COUIC_REPORT_CONF}
+    chown root:${COUIC_REPORT_USER} ${COUIC_REPORT_BIN}
+    # Ensure that the config file has the correct permissions
+    chmod ${COUIC_REPORT_CONF_PERMS} ${COUIC_REPORT_CONF}
+}
+
+if [ $1 -eq 1 ] ; then
+    # Initial installation
+    create_user
+    set_permissions
+fi
+'''
+
+post_uninstall_script = '''
+#!/bin/bash -e
+# Script based on the RPM %systemd_postun scriptlet. See:
+#   - https://docs.fedoraproject.org/en-US/packaging-guidelines/Scriptlets/#_systemd
+#   - https://cgit.freedesktop.org/systemd/systemd/tree/src/core/macros.systemd.in
+
+COUIC_REPORT_DIRS="/etc/couic-report"
+
+for dir in ${COUIC_REPORT_DIRS}; do
+    if [ -d "${dir}" ]; then
+        rm -rf "${dir}"
+    fi
+done
+
+systemctl daemon-reload >/dev/null 2>&1 || :
+if [ $1 -ge 1 ] ; then
+    systemctl try-restart couic-report.service >/dev/null 2>&1 || :
+fi
+'''

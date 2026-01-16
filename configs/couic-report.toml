@@ -1,0 +1,50 @@
+#==========================
+# Couic Report Configuration
+#==========================
+
+# Batch interval in seconds - how often to send accumulated reports to notifiers
+# Default: 900 (15 minutes)
+batch_interval_secs = 900
+
+[server]
+# Server display name (used in notifications)
+name = "couic-report"
+
+# Server listening address
+# Default: "127.0.0.1"
+# server.addr must be one of: localhost, 127.0.0.1, ::1
+addr = "127.0.0.1"
+
+# Server listening port
+# Default: 8000
+port = 8000
+
+# Webhook secret (must be a valid UUID)
+# This secret is used in the endpoint URL: POST /v1/reports/{secret}
+# Generate a UUID with: uuidgen
+# Example: "550e8400-e29b-41d4-a716-446655440000"
+secret = ""
+
+
+[thresholds]
+# Orange threshold - number of reports to trigger orange alert
+# Default: 10
+orange = 10
+
+# Red threshold - number of reports to trigger red/critical alert
+# Must be greater than orange threshold
+# Default: 100
+red = 100
+
+# Minimum threshold level to trigger notifications
+# Valid values: "green", "orange", "red"
+# - green: notify on all batches (even with 0 reports)
+# - orange: notify only when reaching orange threshold or above
+# - red: notify only when reaching red threshold
+# Default: "green"
+threshold_min = "green"
+
+# Discord webhook configuration
+[discord]
+# Discord webhook URL - obtain from Discord channel settings > Integrations > Webhooks
+#webhook_url = "https://discord.com/api/webhooks/YOUR_WEBHOOK_ID/YOUR_WEBHOOK_TOKEN"

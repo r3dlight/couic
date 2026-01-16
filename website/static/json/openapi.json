@@ -1,0 +1,1925 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "couic",
+        "description": "A lightweight eBPF-powered network filtering solution controllable through a REST API",
+        "license": {
+            "name": "MIT OR Apache-2.0",
+            "identifier": "MIT OR Apache-2.0"
+        },
+        "version": "0.5.12"
+    },
+    "externalDocs": {
+        "description": "Couic Documentation",
+        "url": "https:/couic.net/docs"
+    },
+    "paths": {
+        "/v1/sets/reload": {
+            "post": {
+                "tags": [
+                    "sets"
+                ],
+                "summary": "Reload all sets",
+                "description": "Triggers a reload of all CIDR sets from the configured sets directory.",
+                "operationId": "reload_sets",
+                "responses": {
+                    "201": {
+                        "description": "Sets reloaded",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SetsReloadResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CompositeError"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CompositeError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ]
+            }
+        },
+        "/v1/sets/{policy}": {
+            "get": {
+                "tags": [
+                    "sets"
+                ],
+                "summary": "List all sets for a policy",
+                "description": "Returns a summary of all CIDR sets for the specified policy.",
+                "operationId": "list_sets",
+                "parameters": [
+                    {
+                        "name": "policy",
+                        "in": "path",
+                        "description": "Policy name (drop or ignore)",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/Policy"
+                        },
+                        "example": "drop"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of set summaries",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/SetSummary"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request (invalid path parameter)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CompositeError"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CompositeError"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CompositeError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "sets"
+                ],
+                "summary": "Create a new set",
+                "description": "Creates a new CIDR set for the specified policy.",
+                "operationId": "create_set",
+                "parameters": [
+                    {
+                        "name": "policy",
+                        "in": "path",
+                        "description": "Policy name (drop or ignore)",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/Policy"
+                        },
+                        "example": "drop"
+                    }
+                ],
+                "requestBody": {
+                    "description": "Set to create",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/SetRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "201": {
+                        "description": "Set created",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Set"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request (malformed JSON or invalid path parameter)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CompositeError"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CompositeError"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CompositeError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ]
+            }
+        },
+        "/v1/sets/{policy}/{name}": {
+            "get": {
+                "tags": [
+                    "sets"
+                ],
+                "summary": "Get a specific set",
+                "description": "Returns the full set with all entries for the specified policy and set name.",
+                "operationId": "get_set",
+                "parameters": [
+                    {
+                        "name": "policy",
+                        "in": "path",
+                        "description": "Policy name (drop or ignore)",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/Policy"
+                        },
+                        "example": "drop"
+                    },
+                    {
+                        "name": "name",
+                        "in": "path",
+                        "description": "Set name",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/SetName"
+                        },
+                        "example": "malware-ips"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Set found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Set"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request (invalid path parameters)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CompositeError"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CompositeError"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Set not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CompositeError"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CompositeError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "sets"
+                ],
+                "summary": "Update a set",
+                "description": "Replaces all entries in the specified set.",
+                "operationId": "update_set",
+                "parameters": [
+                    {
+                        "name": "policy",
+                        "in": "path",
+                        "description": "Policy name (drop or ignore)",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/Policy"
+                        },
+                        "example": "drop"
+                    },
+                    {
+                        "name": "name",
+                        "in": "path",
+                        "description": "Set name",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/SetName"
+                        },
+                        "example": "malware-ips"
+                    }
+                ],
+                "requestBody": {
+                    "description": "Updated set data",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/SetRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Set updated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Set"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request (malformed JSON or invalid path parameters)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CompositeError"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CompositeError"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Set not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CompositeError"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CompositeError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "sets"
+                ],
+                "summary": "Delete a set",
+                "description": "Deletes the specified set. A reload may be required to apply changes.",
+                "operationId": "delete_set",
+                "parameters": [
+                    {
+                        "name": "policy",
+                        "in": "path",
+                        "description": "Policy name (drop or ignore)",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/Policy"
+                        },
+                        "example": "drop"
+                    },
+                    {
+                        "name": "name",
+                        "in": "path",
+                        "description": "Set name",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/SetName"
+                        },
+                        "example": "malware-ips"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Set deleted",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SetDeleteResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request (invalid path parameters)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CompositeError"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CompositeError"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Set not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CompositeError"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CompositeError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ]
+            }
+        },
+        "/v1/stats": {
+            "get": {
+                "tags": [
+                    "stats"
+                ],
+                "summary": "Get XDP statistics",
+                "description": "Returns basic XDP statistics including CIDR counts and packet/byte counters per XDP action.",
+                "operationId": "get_stats",
+                "responses": {
+                    "200": {
+                        "description": "Statistics in JSON format",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Stats"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CompositeError"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CompositeError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ]
+            }
+        },
+        "/v1/stats/tags/drop": {
+            "get": {
+                "tags": [
+                    "stats"
+                ],
+                "summary": "Get per-tag drop statistics",
+                "description": "Returns packet and byte statistics for each tag in the drop policy.",
+                "operationId": "get_stats_tags_drop",
+                "responses": {
+                    "200": {
+                        "description": "Per-tag drop statistics",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TagStats"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CompositeError"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CompositeError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ]
+            }
+        },
+        "/v1/stats/tags/ignore": {
+            "get": {
+                "tags": [
+                    "stats"
+                ],
+                "summary": "Get per-tag ignore statistics",
+                "description": "Returns packet and byte statistics for each tag in the ignore policy.",
+                "operationId": "get_stats_tags_ignore",
+                "responses": {
+                    "200": {
+                        "description": "Per-tag ignore statistics",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TagStats"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CompositeError"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CompositeError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ]
+            }
+        },
+        "/v1/metrics": {
+            "get": {
+                "tags": [
+                    "stats"
+                ],
+                "summary": "Get comprehensive metrics including per-tag statistics",
+                "description": "Returns all statistics including XDP counters and per-tag packet/byte breakdowns for both drop and ignore policies. Supports JSON (default) and OpenMetrics/Prometheus output formats.",
+                "operationId": "get_metrics",
+                "parameters": [
+                    {
+                        "name": "format",
+                        "in": "query",
+                        "description": "Output format. Use 'prometheus' for OpenMetrics text format, omit for JSON.",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "prometheus"
+                            ],
+                            "examples": [
+                                "prometheus"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Metrics in JSON or OpenMetrics format",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Metrics"
+                                }
+                            },
+                            "application/openmetrics-text": {
+                                "schema": {
+                                    "type": "string",
+                                    "description": "OpenMetrics 1.0.0 formatted text output"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CompositeError"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CompositeError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ]
+            }
+        },
+        "/v1/{policy}": {
+            "get": {
+                "tags": [
+                    "policies"
+                ],
+                "summary": "List all entries based on policy",
+                "operationId": "list_entries",
+                "parameters": [
+                    {
+                        "name": "policy",
+                        "in": "path",
+                        "description": "Policy name (e.g., 'drop', 'ignore')",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/Policy"
+                        },
+                        "example": "drop"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of entries",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Entry"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request (invalid path parameter)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CompositeError"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CompositeError"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CompositeError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "policies"
+                ],
+                "summary": "Create a new entry",
+                "description": "Add a new CIDR entry to the specified policy (drop or ignore).",
+                "operationId": "create_entry",
+                "parameters": [
+                    {
+                        "name": "policy",
+                        "in": "path",
+                        "description": "Policy name (e.g., 'drop', 'ignore')",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/Policy"
+                        },
+                        "example": "ignore"
+                    }
+                ],
+                "requestBody": {
+                    "description": "Entry to create",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/EntryRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "201": {
+                        "description": "Entry created",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Entry"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request (malformed JSON or invalid path parameter)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CompositeError"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CompositeError"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CompositeError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ]
+            }
+        },
+        "/v1/{policy}/peer": {
+            "post": {
+                "tags": [
+                    "policies"
+                ],
+                "summary": "Synchronize entries with peers",
+                "description": "Process a batch of peer synchronization jobs (add or remove entries).",
+                "operationId": "peer_entries",
+                "parameters": [
+                    {
+                        "name": "policy",
+                        "in": "path",
+                        "description": "Policy name",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/Policy"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "description": "List of peer jobs to process",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/components/schemas/PeerJob"
+                                }
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "201": {
+                        "description": "Peer jobs processed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/PeerJob"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request (malformed JSON or invalid path parameter)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CompositeError"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CompositeError"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CompositeError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ]
+            }
+        },
+        "/v1/{policy}/{ip}/{prefix}": {
+            "get": {
+                "tags": [
+                    "policies"
+                ],
+                "summary": "Get a specific entry based on policy",
+                "operationId": "get_entry",
+                "parameters": [
+                    {
+                        "name": "policy",
+                        "in": "path",
+                        "description": "Policy name",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/Policy"
+                        }
+                    },
+                    {
+                        "name": "ip",
+                        "in": "path",
+                        "description": "IP address (IPv4 or IPv6)",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "examples": [
+                                "192.168.1.0",
+                                "2001:db8::"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "prefix",
+                        "in": "path",
+                        "description": "CIDR prefix length",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 128,
+                            "examples": [
+                                24,
+                                64
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Entry found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Entry"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request (invalid path parameters)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CompositeError"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CompositeError"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CompositeError"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CompositeError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "policies"
+                ],
+                "summary": "Delete an entry based on policy",
+                "operationId": "delete_entry",
+                "parameters": [
+                    {
+                        "name": "policy",
+                        "in": "path",
+                        "description": "Policy name",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/Policy"
+                        }
+                    },
+                    {
+                        "name": "ip",
+                        "in": "path",
+                        "description": "IP address (IPv4 or IPv6)",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "examples": [
+                                "192.168.1.0",
+                                "2001:db8::"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "prefix",
+                        "in": "path",
+                        "description": "CIDR prefix length",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 128,
+                            "examples": [
+                                24,
+                                64
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Entry deleted"
+                    },
+                    "400": {
+                        "description": "Bad request (invalid path parameters)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CompositeError"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CompositeError"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CompositeError"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CompositeError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ]
+            }
+        },
+        "/v1/client": {
+            "get": {
+                "tags": [
+                    "clients"
+                ],
+                "summary": "List all clients",
+                "operationId": "list_clients",
+                "responses": {
+                    "200": {
+                        "description": "List of clients",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Client"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CompositeError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "clients"
+                ],
+                "summary": "Create a new client",
+                "operationId": "create_client",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ClientRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "201": {
+                        "description": "Client created",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ClientResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request (malformed JSON)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CompositeError"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CompositeError"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Client already exists",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CompositeError"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CompositeError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ]
+            }
+        },
+        "/v1/client/{name}": {
+            "get": {
+                "tags": [
+                    "clients"
+                ],
+                "summary": "Get a client by name",
+                "operationId": "get_client",
+                "parameters": [
+                    {
+                        "name": "name",
+                        "in": "path",
+                        "description": "Client name (e.g., 'client1')",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "examples": [
+                                "client1"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Client found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Client"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request (invalid path parameter)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CompositeError"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CompositeError"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CompositeError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "clients"
+                ],
+                "summary": "Delete a client by name",
+                "operationId": "delete_client",
+                "parameters": [
+                    {
+                        "name": "name",
+                        "in": "path",
+                        "description": "Client name (e.g., 'client1')",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "examples": [
+                                "client1"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Client deleted"
+                    },
+                    "400": {
+                        "description": "Bad request (invalid path parameter)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CompositeError"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CompositeError"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CompositeError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ]
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "CompositeError": {
+                "type": "object",
+                "required": [
+                    "code",
+                    "message",
+                    "errors"
+                ],
+                "properties": {
+                    "code": {
+                        "$ref": "#/components/schemas/ErrorCode"
+                    },
+                    "errors": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "$ref": "#/components/schemas/ErrorDetail"
+                        },
+                        "propertyNames": {
+                            "type": "string"
+                        }
+                    },
+                    "message": {
+                        "type": "string"
+                    }
+                }
+            },
+            "Entry": {
+                "type": "object",
+                "description": "Represents a firewall entry with creation timestamp (returned by API)",
+                "required": [
+                    "creation",
+                    "cidr",
+                    "expiration"
+                ],
+                "properties": {
+                    "creation": {
+                        "type": "integer",
+                        "format": "int64",
+                        "minimum": 0,
+                        "description": "Unix timestamp when the entry was created",
+                        "examples": [
+                            1680000000
+                        ]
+                    },
+                    "cidr": {
+                        "type": "string",
+                        "description": "CIDR notation (IPv4 or IPv6)",
+                        "examples": [
+                            "192.168.1.0/24"
+                        ]
+                    },
+                    "expiration": {
+                        "type": "integer",
+                        "format": "int64",
+                        "minimum": 0,
+                        "description": "Unix timestamp when the entry expires (0 = never)",
+                        "examples": [
+                            1680000000
+                        ]
+                    },
+                    "tag": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "description": "Optional tag for categorization",
+                        "maxLength": 64,
+                        "pattern": "^[a-zA-Z0-9._-]*$",
+                        "examples": [
+                            "malicious"
+                        ]
+                    }
+                }
+            },
+            "EntryRequest": {
+                "type": "object",
+                "description": "Request body for creating a firewall entry",
+                "required": [
+                    "cidr",
+                    "expiration"
+                ],
+                "properties": {
+                    "cidr": {
+                        "type": "string",
+                        "description": "CIDR notation (IPv4 or IPv6)",
+                        "examples": [
+                            "192.168.1.0/24"
+                        ]
+                    },
+                    "expiration": {
+                        "type": "integer",
+                        "format": "int64",
+                        "minimum": 0,
+                        "description": "Unix timestamp when the entry expires (0 = never)",
+                        "examples": [
+                            1680000000
+                        ]
+                    },
+                    "tag": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "description": "Optional tag for categorization",
+                        "maxLength": 64,
+                        "pattern": "^[a-zA-Z0-9._-]*$",
+                        "examples": [
+                            "malicious"
+                        ]
+                    },
+                    "metadata": {
+                        "$ref": "#/components/schemas/Metadata",
+                        "description": "Optional metadata for the entry"
+                    }
+                }
+            },
+            "Metadata": {
+                "type": "object",
+                "description": "Optional metadata for an entry",
+                "properties": {
+                    "kind": {
+                        "type": "string",
+                        "description": "Type or category of the metadata"
+                    },
+                    "detail": {
+                        "type": "string",
+                        "description": "Detailed description"
+                    },
+                    "extra": {
+                        "type": "object",
+                        "description": "Additional arbitrary metadata as key-value pairs",
+                        "additionalProperties": true
+                    }
+                }
+            },
+            "ErrorCode": {
+                "type": "string",
+                "description": "Enum representing error codes used in the API",
+                "enum": [
+                    "Eprocessing",
+                    "Eunauthorized",
+                    "Enotfound",
+                    "Econflict",
+                    "Ebadrequest",
+                    "Einvalid",
+                    "Einternal",
+                    "Enotimplemented"
+                ]
+            },
+            "ErrorDetail": {
+                "type": "object",
+                "required": [
+                    "code",
+                    "message"
+                ],
+                "properties": {
+                    "code": {
+                        "$ref": "#/components/schemas/ErrorCode"
+                    },
+                    "message": {
+                        "type": "string"
+                    }
+                }
+            },
+            "PeerJob": {
+                "type": "object",
+                "description": "A peer synchronization job",
+                "required": [
+                    "action",
+                    "entry"
+                ],
+                "properties": {
+                    "action": {
+                        "$ref": "#/components/schemas/Action"
+                    },
+                    "entry": {
+                        "$ref": "#/components/schemas/EntryRequest"
+                    }
+                }
+            },
+            "Action": {
+                "type": "string",
+                "description": "Action to perform on an entry",
+                "enum": [
+                    "add",
+                    "remove"
+                ]
+            },
+            "PktStats": {
+                "type": "object",
+                "description": "Packet and byte counters",
+                "required": [
+                    "rx_packets",
+                    "rx_bytes"
+                ],
+                "properties": {
+                    "rx_packets": {
+                        "type": "integer",
+                        "format": "int64",
+                        "minimum": 0,
+                        "description": "Number of packets received"
+                    },
+                    "rx_bytes": {
+                        "type": "integer",
+                        "format": "int64",
+                        "minimum": 0,
+                        "description": "Number of bytes received"
+                    }
+                }
+            },
+            "RbacGroup": {
+                "type": "string",
+                "description": "RBAC group defining client permissions",
+                "enum": [
+                    "admin",
+                    "clientro",
+                    "clientrw",
+                    "monitoring",
+                    "peering"
+                ]
+            },
+            "Policy": {
+                "type": "string",
+                "description": "Firewall policy type",
+                "enum": [
+                    "drop",
+                    "ignore"
+                ]
+            },
+            "SetsReloadResponse": {
+                "type": "object",
+                "required": [
+                    "reload_status"
+                ],
+                "properties": {
+                    "reload_status": {
+                        "type": "string"
+                    }
+                }
+            },
+            "Stats": {
+                "type": "object",
+                "description": "Basic XDP statistics",
+                "required": [
+                    "drop_cidr_count",
+                    "ignore_cidr_count",
+                    "xdp"
+                ],
+                "properties": {
+                    "drop_cidr_count": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "description": "Number of CIDRs in the drop list"
+                    },
+                    "ignore_cidr_count": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "description": "Number of CIDRs in the ignore list"
+                    },
+                    "xdp": {
+                        "type": "object",
+                        "description": "XDP action statistics (packets and bytes per action)",
+                        "additionalProperties": {
+                            "$ref": "#/components/schemas/PktStats"
+                        },
+                        "propertyNames": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "TagStats": {
+                "type": "object",
+                "description": "Per-tag packet statistics",
+                "required": [
+                    "tags"
+                ],
+                "properties": {
+                    "tags": {
+                        "type": "object",
+                        "description": "Map of tag names to their packet/byte statistics",
+                        "additionalProperties": {
+                            "$ref": "#/components/schemas/PktStats"
+                        },
+                        "propertyNames": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "Metrics": {
+                "type": "object",
+                "description": "Comprehensive metrics including XDP stats and per-tag breakdowns",
+                "required": [
+                    "drop_cidr_count",
+                    "ignore_cidr_count",
+                    "xdp",
+                    "drop_tags",
+                    "ignore_tags"
+                ],
+                "properties": {
+                    "drop_cidr_count": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "description": "Number of CIDRs in the drop list"
+                    },
+                    "ignore_cidr_count": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "description": "Number of CIDRs in the ignore list"
+                    },
+                    "xdp": {
+                        "type": "object",
+                        "description": "XDP action statistics (packets and bytes per action)",
+                        "additionalProperties": {
+                            "$ref": "#/components/schemas/PktStats"
+                        },
+                        "propertyNames": {
+                            "type": "string"
+                        }
+                    },
+                    "drop_tags": {
+                        "$ref": "#/components/schemas/TagStats",
+                        "description": "Per-tag statistics for dropped packets"
+                    },
+                    "ignore_tags": {
+                        "$ref": "#/components/schemas/TagStats",
+                        "description": "Per-tag statistics for ignored packets"
+                    }
+                }
+            },
+            "Client": {
+                "type": "object",
+                "description": "Client information (returned when listing clients)",
+                "required": [
+                    "name",
+                    "group"
+                ],
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "description": "Client name",
+                        "maxLength": 48,
+                        "pattern": "^[a-zA-Z0-9._-]+$",
+                        "examples": [
+                            "prometheus"
+                        ]
+                    },
+                    "group": {
+                        "$ref": "#/components/schemas/RbacGroup"
+                    }
+                }
+            },
+            "ClientResponse": {
+                "type": "object",
+                "description": "Client information with token (returned when creating a client)",
+                "required": [
+                    "name",
+                    "group",
+                    "token"
+                ],
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "description": "Client name",
+                        "maxLength": 48,
+                        "pattern": "^[a-zA-Z0-9._-]+$",
+                        "examples": [
+                            "prometheus"
+                        ]
+                    },
+                    "group": {
+                        "$ref": "#/components/schemas/RbacGroup"
+                    },
+                    "token": {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "Bearer token for authentication",
+                        "examples": [
+                            "d6ac883a-8050-4408-bf1e-5b07e9965191"
+                        ]
+                    }
+                }
+            },
+            "ClientRequest": {
+                "type": "object",
+                "description": "Request body for creating a client",
+                "required": [
+                    "name",
+                    "group"
+                ],
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "description": "Client name",
+                        "maxLength": 48,
+                        "pattern": "^[a-zA-Z0-9._-]+$",
+                        "examples": [
+                            "prometheus"
+                        ]
+                    },
+                    "group": {
+                        "$ref": "#/components/schemas/RbacGroup"
+                    }
+                }
+            },
+            "SetName": {
+                "type": "string",
+                "description": "Set name (1-48 chars, alphanumeric with hyphens and underscores)",
+                "minLength": 1,
+                "maxLength": 48,
+                "pattern": "^[a-zA-Z0-9_-]+$",
+                "examples": [
+                    "malware-ips",
+                    "blocklist_v1"
+                ]
+            },
+            "Set": {
+                "type": "object",
+                "description": "A CIDR set with name and entries",
+                "required": [
+                    "name",
+                    "entries"
+                ],
+                "properties": {
+                    "name": {
+                        "$ref": "#/components/schemas/SetName"
+                    },
+                    "entries": {
+                        "type": "array",
+                        "description": "List of CIDR entries in the set",
+                        "items": {
+                            "type": "string",
+                            "description": "CIDR notation (IPv4 or IPv6)",
+                            "examples": [
+                                "192.168.1.0/24",
+                                "2001:db8::/32"
+                            ]
+                        }
+                    }
+                }
+            },
+            "SetSummary": {
+                "type": "object",
+                "description": "Summary information for a set (used in list operations)",
+                "required": [
+                    "name",
+                    "entry_count",
+                    "file_size"
+                ],
+                "properties": {
+                    "name": {
+                        "$ref": "#/components/schemas/SetName"
+                    },
+                    "entry_count": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "description": "Number of entries in the set"
+                    },
+                    "file_size": {
+                        "type": "integer",
+                        "format": "int64",
+                        "minimum": 0,
+                        "description": "Size of the set file in bytes"
+                    }
+                }
+            },
+            "SetRequest": {
+                "type": "object",
+                "description": "Request body for creating or updating a set",
+                "required": [
+                    "name",
+                    "entries"
+                ],
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "description": "Set name (1-48 chars, alphanumeric with hyphens and underscores)",
+                        "minLength": 1,
+                        "maxLength": 48,
+                        "pattern": "^[a-zA-Z0-9_-]+$",
+                        "examples": [
+                            "malware-ips"
+                        ]
+                    },
+                    "entries": {
+                        "type": "array",
+                        "description": "List of CIDR entries for the set",
+                        "items": {
+                            "type": "string",
+                            "description": "CIDR notation (IPv4 or IPv6)",
+                            "examples": [
+                                "192.168.1.0/24",
+                                "10.0.0.0/8"
+                            ]
+                        }
+                    }
+                }
+            },
+            "SetDeleteResponse": {
+                "type": "object",
+                "description": "Response when deleting a set",
+                "required": [
+                    "deleted",
+                    "reload_required"
+                ],
+                "properties": {
+                    "deleted": {
+                        "type": "boolean",
+                        "description": "Whether the set was successfully deleted"
+                    },
+                    "reload_required": {
+                        "type": "boolean",
+                        "description": "Whether a reload is required to apply changes"
+                    }
+                }
+            }
+        },
+        "securitySchemes": {
+            "Bearer": {
+                "type": "http",
+                "scheme": "bearer",
+                "bearerFormat": "Uuidv4",
+                "description": "An API key is a token that you provide when making API calls. Include the token in a header parameter called `Authorization`.\nExample: `Authorization: Bearer b03dd133-3827-4793-b0df-37f6ffbdd9a9`"
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "policies",
+            "description": "Manage firewall entries (drop/ignore CIDR lists)"
+        },
+        {
+            "name": "stats",
+            "description": "Statistics and metrics endpoints"
+        },
+        {
+            "name": "sets",
+            "description": "CIDR sets management"
+        },
+        {
+            "name": "clients",
+            "description": "API client management (RBAC)"
+        }
+    ]
+}

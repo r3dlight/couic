@@ -1,0 +1,47 @@
+#==========================
+# Couic Configuration File
+#==========================
+
+# List of network interfaces to attach the eBPF/XDP program to (e.g. ["eth0", "ens3"])
+ifaces = []
+
+# Directory for Couic runtime data, sets, and RBAC client files
+working_dir = "/var/lib/couic"
+
+# User and group to drop privileges to after startup (must own working_dir)
+user = "couic"
+group = "couic"
+
+[logging]
+# Directory for log files (must be writable by 'user')
+dir = "/var/log/couic"
+# rotation = "daily"     # daily, weekly, never (default: daily)
+# max_log_files = 7      # (default: 7)
+# format = "text"        # text, json (default: text)
+
+[server]
+# Path to the Unix domain socket for the REST API
+socket = "/var/run/couic/couic.sock"
+
+# [reporting]
+# Enables telemetry/reporting to a remote endpoint
+# enabled = false
+# Webhook URL to send reports (replace {secret-uuid} with your reporting secret)
+# webhook = "http://127.0.0.1:8000/v1/reports/{secret-uuid}"
+
+# [peering]
+# Enables peering with other Couic nodes for distributed filtering
+# enabled = false
+
+# List of peer nodes to connect to (repeat for each peer)
+# [[peering.peers]]
+# host = "remote_IP_or_hostname"   # Hostname or IP of peer
+# port = 8080                      # Port of peer's peering service
+# tls = true                       # Use TLS for peer connection
+# token = "00000000-0000-0000-0000-000000000000"  # Shared UUID token for authentication
+
+# [[peering.peers]]
+# host = "remote_IP_or_hostname"
+# port = 8080
+# tls = true
+# token = "00000000-0000-0000-0000-000000000000"

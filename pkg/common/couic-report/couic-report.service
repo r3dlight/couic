@@ -1,0 +1,59 @@
+[Unit]
+Description=couic-report
+After=network.target
+Wants=network.target
+
+[Service]
+ExecStart=/usr/bin/couic-report -c /etc/couic-report/config.toml
+Type=exec
+User=couic-report
+Group=couic-report
+Restart=on-failure
+RestartSec=10s
+#StartLimitIntervalSec=10m
+#StartLimitBurst=5
+UMask=0077
+LogRateLimitBurst=0
+LogRateLimitIntervalSec=0
+CapabilityBoundingSet=
+AmbientCapabilities=
+SecureBits=keep-caps off
+PrivateUsers=true
+
+# Filesystem protections
+ProtectSystem=strict
+ProtectHome=yes
+ProtectControlGroups=yes
+ProtectKernelModules=yes
+ProtectKernelTunables=yes
+ProtectKernelLogs=yes
+ProtectHostname=yes
+ProtectClock=yes
+ProtectProc=invisible
+ProcSubset=pid
+PrivateTmp=yes
+PrivateDevices=yes
+PrivateMounts=yes
+LockPersonality=yes
+MemoryDenyWriteExecute=yes
+NoNewPrivileges=yes
+RestrictSUIDSGID=yes
+RemoveIPC=yes
+RootDirectory=
+RootImage=
+
+# Networking restrictions
+RestrictAddressFamilies=AF_INET AF_INET6
+
+# Syscall restrictions
+SystemCallArchitectures=native
+SystemCallErrorNumber=EPERM
+SystemCallFilter=~@aio @clock @cpu-emulation @debug @ipc @keyring @memlock \
+  @module @mount @obsolete @pkey @raw-io @reboot @resources @setuid @swap \
+  @sync @timer @privileged
+# Namespace restrictions
+RestrictNamespaces=yes
+RestrictRealtime=yes
+
+[Install]
+WantedBy=multi-user.target

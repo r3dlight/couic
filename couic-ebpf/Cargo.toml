@@ -1,0 +1,19 @@
+[package]
+name = "couic-ebpf"
+version = "0.1.0"
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+
+[dependencies]
+aya-ebpf = { workspace = true }
+network-types = { workspace = true }
+
+[build-dependencies]
+which = { workspace = true, features = ["real-sys"] }
+
+[[bin]]
+name = "couic"
+path = "src/main.rs"

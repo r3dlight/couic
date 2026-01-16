@@ -1,0 +1,66 @@
+[package]
+name = "couic-report"
+version = "1.0.0"
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+description = "Telemetry aggregation and Discord notifications for Couic"
+
+[[bin]]
+name = "couic-report"
+path = "src/main.rs"
+
+[dependencies]
+axum = { workspace = true, features = ["http1", "tokio", "query", "json"] }
+clap = { workspace = true, features = ["std", "derive"] }
+tokio = { workspace = true, features = ["rt-multi-thread"] }
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true, features = ["std"] }
+reqwest = { workspace = true, features = ["json", "default-tls"] }
+chrono = { workspace = true, features = ["clock"] }
+async-trait = { workspace = true }
+thiserror = { workspace = true }
+toml = { workspace = true, features = ["parse", "serde"] }
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true, features = ["fmt"] }
+uuid = { workspace = true, features = ["serde", "v4"] }
+
+common = { path = "../common" }
+
+# Debian packaging using cargo-deb
+[package.metadata.deb]
+name = "couic-report"
+priority = "optional"
+section = "net"
+depends = "$auto, passwd"
+extended-description-file = "pkg/debian/couic-report/description.txt"
+license-file = ["../pkg/common/LICENSES", "0"]
+assets = [
+    [
+        "target/release/couic-report",
+        "/usr/bin/couic-report",
+        "755",
+    ],
+    [
+        "../configs/couic-report.toml",
+        "/etc/couic-report/config.toml",
+        "640",
+    ],
+]
+maintainer-scripts = "../pkg/debian/couic-report"
+systemd-units = { unit-name = "couic-report", unit-scripts = "../pkg/common/couic-report", enable = false }
+
+[package.metadata.generate-rpm]
+name = "couic-report"
+license = "MIT OR Apache-2.0"
+assets = [
+    { source = "target/release/couic-report", dest = "/usr/bin/couic-report", mode = "750" },
+    { source = "../configs/couic-report.toml", dest = "/etc/couic-report/config.toml", mode = "640" },
+    { source = "../pkg/common/couic-report/couic-report.service", dest = "/lib/systemd/system/couic-report.service", mode = "644" },
+    { source = "../pkg/common/couic-report/couicreport.service.preset", dest = "/lib/systemd/system-preset/50-couic-report.preset", mode = "644" },
+]
+
+[package.metadata.generate-rpm.requires]
+shadow-utils = "*"

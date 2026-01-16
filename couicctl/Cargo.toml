@@ -1,0 +1,28 @@
+[package]
+name = "couicctl"
+authors.workspace = true
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+
+[dependencies]
+clap = { workspace = true, features = ["std", "help", "derive"] }
+clap_mangen = { workspace = true }
+clap-markdown = { workspace = true }
+comfy-table = { workspace = true }
+humantime = { workspace = true }
+ipnet = { workspace = true }
+reqwest = { workspace = true, features = ["blocking", "json"] }
+serde = { workspace = true }
+serde_json = { workspace = true, features = ["std"] }
+thiserror = { workspace = true }
+toml = { workspace = true, features = ["parse"] }
+uuid = { workspace = true, features = ["serde", "v4"] }
+
+client = { path = "../client" }
+common = { path = "../common" }
+
+[lints]
+workspace = true

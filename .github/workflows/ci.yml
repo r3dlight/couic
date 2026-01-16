@@ -1,0 +1,32 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  lint-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+
+      - name: Rust cache
+        uses: Swatinem/rust-cache@779680da715d629ac1d338a641029a2f4372abb5 # v2.8.2
+
+      - name: Install Rust toolchains
+        run: make setup
+
+      - name: Lint (clippy)
+        run: make lint
+
+      - name: Run tests
+        run: make test
+
+      - name: Run integration tests
+        run: sudo apt install musl-dev && make release-static && make integration-test

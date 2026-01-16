@@ -1,0 +1,17 @@
+#!/bin/sh
+set -e
+
+COUIC_DIRS="/etc/couic /run/couic /var/lib/couic /var/log/couic"
+
+case "$1" in
+purge)
+    # Remove runtime, data, and log directories if they exist
+    for dir in ${COUIC_DIRS}; do
+        if [ -d "${dir}" ]; then
+            rm -rf "${dir}"
+        fi
+    done
+    ;;
+esac
+
+#DEBHELPER#

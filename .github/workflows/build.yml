@@ -1,0 +1,44 @@
+name: Build
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        arch: [amd64]
+    steps:
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+
+      - name: Rust cache
+        uses: Swatinem/rust-cache@779680da715d629ac1d338a641029a2f4372abb5 # v2.8.2
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          if [ "${{ matrix.arch }}" = "amd64" ]; then
+            sudo apt-get install -y musl-tools
+          else
+            sudo apt-get install -y musl-tools gcc-aarch64-linux-gnu
+          fi
+        
+      - name: Install Rust toolchains
+        run: make setup
+
+      - name: Build release
+        run: |
+          if [ "${{ matrix.arch }}" = "amd64" ]; then
+            make release-static
+          else
+            make release-static-arm64
+          fi
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: couic-${{ matrix.arch }}
+          path: release/*

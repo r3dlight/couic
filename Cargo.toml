@@ -1,0 +1,121 @@
+[workspace]
+resolver = "3"
+members = [
+    "client",
+    "common",
+    "couic",
+    "couic-ebpf",
+    "couicctl",
+    "couic-report",
+]
+default-members = ["couic", "couicctl", "couic-report"]
+
+[workspace.package]
+version = "1.0.0"
+edition = "2024"
+license = "MIT OR Apache-2.0"
+authors = ["FCSC <couic@fcsc.fr>"]
+repository = "https://github.com/FCSC-FR/couic"
+homepage = "https://couic.net"
+description = "eBPF firewall that cuts fast"
+keywords = ["ebpf", "xdp", "network", "security", "firewall"]
+readme = "README.md"
+
+[workspace.dependencies]
+# client
+url = { version = "2", default-features = false }
+
+# common
+clap = { version = "4.5", default-features = false }
+crossbeam-channel = { version = "0.5", default-features = false }
+ipnet = { version = "2.11", default-features = false }
+rand = { version = "0.9", default-features = false }
+reqwest = { version = "0.13", default-features = false }
+serde = { version = "1.0", default-features = false }
+serde_json = { version = "1.0", default-features = false }
+thiserror = { version = "2", default-features = false }
+toml = { version = "0.9.11", default-features = false }
+tracing = { version = "0.1", default-features = false }
+tracing-subscriber = { version = "0.3", default-features = false }
+tracing-appender = { version = "0.2", default-features = false }
+uuid = { version = "1.19", default-features = false }
+
+# couic
+axum = { version = "0.8", default-features = false }
+caps = { version = "0.5", default-features = false }
+nix = { version = "0.30", default-features = false }
+tokio = { version = "1.49", default-features = false }
+
+# couicctl
+clap_mangen = { version = "0.2", default-features = false }
+clap-markdown = { version = "0.1", default-features = false }
+comfy-table = { version = "7.2", default-features = false }
+humantime = { version = "2.2", default-features = false }
+
+# ebpf
+anyhow = { version = "1.0", default-features = false }
+aya = { version = "0.13", default-features = false }
+aya-build = { version = "0.1", default-features = false }
+aya-ebpf = { version = "0.1", default-features = false }
+cargo_metadata = { version = "0.23", default-features = false }
+libc = { version = "0.2", default-features = false }
+network-types = { version = "0.1.0", default-features = false }
+which = { version = "8.0.0", default-features = false }
+#aya-log = { version = "0.2", default-features = false }
+#aya-log-ebpf = { version = "0.1", default-features = false }
+#env_logger = { version = "0.11.7", default-features = false }
+
+# couic-report
+async-trait = { version = "0.1", default-features = false }
+chrono = { version = "0.4", default-features = false }
+
+# Dev dependencies
+tempfile = { version = "3.23", default-features = false }
+
+[workspace.lints.rust]
+arithmetic_overflow = { level = "deny", priority = -1 }
+
+[workspace.lints.clippy]
+pedantic = { level = "deny", priority = -1 }
+nursery = { level = "deny", priority = -1 }
+#restriction = { level = "deny", priority = -1 }
+#cargo = { level = "deny", priority = -1 }
+#enum-glob-use = "allow"
+missing-errors-doc = "allow"
+
+indexing_slicing = { level = "deny", priority = -1 }
+fallible_impl_from = { level = "deny", priority = -1 }
+wildcard_enum_match_arm = { level = "deny", priority = -1 }
+unneeded_field_pattern = { level = "deny", priority = -1 }
+fn_params_excessive_bools = { level = "deny", priority = -1 }
+must_use_candidate = { level = "deny", priority = -1 }
+checked_conversions = { level = "deny", priority = -1 }
+cast_possible_truncation = { level = "deny", priority = -1 }
+cast_sign_loss = { level = "deny", priority = -1 }
+cast_possible_wrap = { level = "deny", priority = -1 }
+cast_precision_loss = { level = "deny", priority = -1 }
+integer_division = { level = "deny", priority = -1 }
+arithmetic_side_effects = { level = "deny", priority = -1 }
+unchecked_time_subtraction = { level = "deny", priority = -1 }
+unwrap_used = "warn"
+expect_used = "warn"
+panicking_unwrap = { level = "deny", priority = -1 }
+option_env_unwrap = { level = "deny", priority = -1 }
+join_absolute_paths = { level = "deny", priority = -1 }
+serde_api_misuse = { level = "deny", priority = -1 }
+uninit_vec = { level = "deny", priority = -1 }
+transmute_ptr_to_ref = { level = "deny", priority = -1 }
+transmute_undefined_repr = { level = "deny", priority = -1 }
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+strip = true
+debug = false
+panic = "abort"
+# trim-paths = "all"
+
+[profile.release.package.couic-ebpf]
+#debug = 2
+codegen-units = 1

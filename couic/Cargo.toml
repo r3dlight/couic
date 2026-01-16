@@ -1,0 +1,190 @@
+[package]
+name = "couic"
+authors.workspace = true
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description.workspace = true
+readme.workspace = true
+repository.workspace = true
+homepage.workspace = true
+
+[dependencies]
+axum = { workspace = true, features = ["http1", "tokio", "query", "json"] }
+aya = { workspace = true }
+caps = { workspace = true }
+clap = { workspace = true, features = ["std", "derive"] }
+crossbeam-channel = { workspace = true }
+ipnet = { workspace = true, features = ["serde"] }
+nix = { workspace = true, features = ["user", "fs", "process"] }
+rand = { workspace = true, features = ["thread_rng"] }
+reqwest = { workspace = true, features = ["blocking", "json", "default-tls"] }
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true, features = ["std"] }
+thiserror = { workspace = true }
+toml = { workspace = true, features = ["parse", "display"] }
+tokio = { workspace = true, features = ["rt-multi-thread"] }
+uuid = { workspace = true, features = ["serde", "v4"] }
+tracing = { workspace = true, features = ["attributes"] }
+tracing-subscriber = { workspace = true, features = ["env-filter", "json"] }
+tracing-appender = { workspace = true }
+
+client = { path = "../client" }
+common = { path = "../common" }
+
+[dev-dependencies]
+tempfile = { workspace = true }
+
+[build-dependencies]
+anyhow = { workspace = true }
+aya-build = { workspace = true }
+cargo_metadata = { workspace = true }
+# TODO(https://github.com/rust-lang/cargo/issues/12375): this should be an artifact dependency, but
+# it's not possible to tell cargo to use `-Z build-std` to build it. We cargo-in-cargo in the build
+# script to build this, but we want to teach cargo about the dependecy so that cache invalidation
+# works properly.
+#
+# Note also that https://github.com/rust-lang/cargo/issues/10593 occurs when `target = ...` is added
+# to an artifact dependency; it seems possible to work around that by setting `resolver = "1"` in
+# Cargo.toml in the workspace root.
+#
+# Finally note that *any* usage of `artifact = ...` in *any* Cargo.toml in the workspace breaks
+# workflows with stable cargo; stable cargo outright refuses to load manifests that use unstable
+# features.
+couic-ebpf = { path = "../couic-ebpf" }
+
+[[bin]]
+name = "couic"
+path = "src/main.rs"
+
+# Debian packaging user cargo-deb
+[package.metadata.deb]
+name = "couic"
+priority = "optional"
+section = "net"
+depends = "$auto, passwd"
+extended-description-file = "pkg/debian/couic/description.txt"
+license-file = ["../pkg/common/LICENSES", "0"]
+assets = [
+    ["target/release/couic", "/usr/sbin/couic", "750"],
+    ["target/release/couicctl", "/usr/sbin/couicctl", "700"],
+    ["../configs/couic.toml", "/etc/couic/couic.toml", "640"],
+    ["../configs/couicctl.toml", "/etc/couic/couicctl.toml", "600"],
+    # [
+    #     "../pkg/common/manpages/couicctl.1.gz",
+    #     "/usr/share/man/man1/couicctl.1.gz",
+    #     "644",
+    # ],
+    # [
+    #     "../pkg/common/manpages/couicctl-clients.1.gz",
+    #     "/usr/share/man/man1/couicctl-clients.1.gz",
+    #     "644",
+    # ],
+    # [
+    #     "../pkg/common/manpages/couicctl-clients-add.1.gz",
+    #     "/usr/share/man/man1/couicctl-clients-add.1.gz",
+    #     "644",
+    # ],
+    # [
+    #     "../pkg/common/manpages/couicctl-clients-delete.1.gz",
+    #     "/usr/share/man/man1/couicctl-clients-delete.1.gz",
+    #     "644",
+    # ],
+    # [
+    #     "../pkg/common/manpages/couicctl-clients-inspect.1.gz",
+    #     "/usr/share/man/man1/couicctl-clients-inspect.1.gz",
+    #     "644",
+    # ],
+    # [
+    #     "../pkg/common/manpages/couicctl-clients-list.1.gz",
+    #     "/usr/share/man/man1/couicctl-clients-list.1.gz",
+    #     "644",
+    # ],
+    # [
+    #     "../pkg/common/manpages/couicctl-drop.1.gz",
+    #     "/usr/share/man/man1/couicctl-drop.1.gz",
+    #     "644",
+    # ],
+    # [
+    #     "../pkg/common/manpages/couicctl-drop-add.1.gz",
+    #     "/usr/share/man/man1/couicctl-drop-add.1.gz",
+    #     "644",
+    # ],
+    # [
+    #     "../pkg/common/manpages/couicctl-drop-delete.1.gz",
+    #     "/usr/share/man/man1/couicctl-drop-delete.1.gz",
+    #     "644",
+    # ],
+    # [
+    #     "../pkg/common/manpages/couicctl-drop-inspect.1.gz",
+    #     "/usr/share/man/man1/couicctl-drop-inspect.1.gz",
+    #     "644",
+    # ],
+    # [
+    #     "../pkg/common/manpages/couicctl-drop-list.1.gz",
+    #     "/usr/share/man/man1/couicctl-drop-list.1.gz",
+    #     "644",
+    # ],
+    # [
+    #     "../pkg/common/manpages/couicctl-ignore.1.gz",
+    #     "/usr/share/man/man1/couicctl-ignore.1.gz",
+    #     "644",
+    # ],
+    # [
+    #     "../pkg/common/manpages/couicctl-ignore-add.1.gz",
+    #     "/usr/share/man/man1/couicctl-ignore-add.1.gz",
+    #     "644",
+    # ],
+    # [
+    #     "../pkg/common/manpages/couicctl-ignore-delete.1.gz",
+    #     "/usr/share/man/man1/couicctl-ignore-delete.1.gz",
+    #     "644",
+    # ],
+    # [
+    #     "../pkg/common/manpages/couicctl-ignore-inspect.1.gz",
+    #     "/usr/share/man/man1/couicctl-ignore-inspect.1.gz",
+    #     "644",
+    # ],
+    # [
+    #     "../pkg/common/manpages/couicctl-ignore-list.1.gz",
+    #     "/usr/share/man/man1/couicctl-ignore-list.1.gz",
+    #     "644",
+    # ],
+    # [
+    #     "../pkg/common/manpages/couicctl-sets.1.gz",
+    #     "/usr/share/man/man1/couicctl-sets.1.gz",
+    #     "644",
+    # ],
+    # [
+    #     "../pkg/common/manpages/couicctl-sets-reload.1.gz",
+    #     "/usr/share/man/man1/couicctl-sets-reload.1.gz",
+    #     "644",
+    # ],
+    # [
+    #     "../pkg/common/manpages/couicctl-stats.1.gz",
+    #     "/usr/share/man/man1/couicctl-stats.1.gz",
+    #     "644",
+    # ],
+    # [
+    #     "../pkg/common/manpages/couicctl-stats-xdp.1.gz",
+    #     "/usr/share/man/man1/couicctl-stats-xdp.1.gz",
+    #     "644",
+    # ],
+]
+maintainer-scripts = "../pkg/debian/couic"
+systemd-units = { unit-name = "couic", unit-scripts = "../pkg/common/couic", enable = false }
+
+[package.metadata.generate-rpm]
+name = "couic"
+license = "MIT OR Apache-2.0"
+assets = [
+    { source = "target/release/couic", dest = "/usr/sbin/couic", mode = "750" },
+    { source = "target/release/couicctl", dest = "/usr/sbin/couicctl", mode = "700" },
+    { source = "../configs/couic.toml", dest = "/etc/couic/couic.toml", mode = "640" },
+    { source = "../configs/couicctl.toml", dest = "/etc/couic/couicctl.toml", mode = "600" },
+    { source = "../pkg/common/couic/couic.service", dest = "/lib/systemd/system/couic.service", mode = "644" },
+    { source = "pkg/common/couic/couic.service.preset", dest = "/lib/systemd/system-preset/50-couic.preset", mode = "644" },
+]
+
+[package.metadata.generate-rpm.requires]
+shadow-utils = "*"

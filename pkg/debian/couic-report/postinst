@@ -1,0 +1,30 @@
+#!/bin/sh
+set -e
+
+COUIC_REPORT_CONF="/etc/couic-report/config.toml"
+COUIC_REPORT_CONF_PERMS=640
+COUIC_REPORT_BIN="/usr/bin/couic-report"
+COUIC_REPORT_USER="couic-report"
+
+create_user() {
+    if id ${COUIC_REPORT_USER} > /dev/null 2>&1; then return; fi
+    useradd --system --no-create-home --user-group --shell /usr/sbin/nologin ${COUIC_REPORT_USER}
+}
+
+set_permissions() {
+    # Ensure that the config file has the correct ownership
+    chown root:${COUIC_REPORT_USER} ${COUIC_REPORT_CONF}
+    chown root:${COUIC_REPORT_USER} ${COUIC_REPORT_BIN}
+    # Ensure that the config file has the correct permissions
+    chmod ${COUIC_REPORT_CONF_PERMS} ${COUIC_REPORT_CONF}
+}
+
+
+case "$1" in
+configure)
+    create_user
+    set_permissions
+    ;;
+esac
+
+#DEBHELPER#

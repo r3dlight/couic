@@ -1,0 +1,66 @@
+[Unit]
+Description=couic
+After=network.target
+Wants=network.target
+
+[Service]
+ExecStart=/usr/sbin/couic -c /etc/couic/couic.toml
+Type=exec
+User=couic
+Group=couic
+Restart=on-failure
+RestartSec=10s
+#StartLimitIntervalSec=10m
+#StartLimitBurst=5
+UMask=0027
+LogRateLimitBurst=0
+LogRateLimitIntervalSec=0
+
+# Capabilities – needed to load eBPF program then couic drop all capabilities
+AmbientCapabilities=CAP_SYS_ADMIN CAP_NET_ADMIN
+CapabilityBoundingSet=CAP_SYS_ADMIN CAP_NET_ADMIN
+
+# Filesystem protections
+ProtectSystem=strict
+ReadWritePaths=/var/lib/couic /var/log/couic
+RuntimeDirectory=couic
+StateDirectory=couic
+LogsDirectory=couic
+ProtectHome=yes
+ProtectControlGroups=yes
+ProtectKernelModules=yes
+ProtectKernelTunables=yes
+ProtectKernelLogs=yes
+ProtectHostname=yes
+ProtectClock=yes
+ProtectProc=invisible
+ProcSubset=pid
+PrivateTmp=yes
+PrivateDevices=yes
+PrivateMounts=yes
+LockPersonality=yes
+MemoryDenyWriteExecute=yes
+NoNewPrivileges=yes
+RestrictSUIDSGID=yes
+RemoveIPC=yes
+
+# Networking restrictions
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+#SocketBindDeny=ipv4:tcp
+#SocketBindDeny=ipv4:udp
+#SocketBindDeny=ipv6:tcp
+#SocketBindDeny=ipv6:udp
+
+# Syscall restrictions
+SystemCallArchitectures=native
+SystemCallErrorNumber=EPERM
+SystemCallFilter=~@aio @clock @cpu-emulation @debug @ipc @keyring @memlock \
+  @module @mount @obsolete @pkey @raw-io @reboot @resources @setuid @swap \
+  @sync @timer
+
+# Namespace restrictions
+RestrictNamespaces=yes
+RestrictRealtime=yes
+
+[Install]
+WantedBy=multi-user.target

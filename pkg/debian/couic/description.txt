@@ -1,0 +1,7 @@
+Couic is a free, open-source eBPF-based network filtering solution designed to block DDoS attacks. It attaches to network interfaces using XDP and provides a REST API for managing blocklists and allowlists.
+
+Couic is lightweight, efficient, and complements existing L3/L4 protection measures. It supports IPv4 and IPv6 CIDRs, static and dynamic configurations, and real-time monitoring with Prometheus. Couic also includes an anti-lockout system and automatic expiration of rules.
+
+This package contains the Couic daemon and CLI.
+
+For more information, visit https://couic.net.
