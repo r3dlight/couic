@@ -33,7 +33,7 @@ menu:
         label: true
     - name: GitHub
       weight: 4
-      url: "https://github.com/github.com/FCSC-FR/couic"
+      url: "https://github.com/FCSC-FR/couic"
       params:
         icon: github
 
